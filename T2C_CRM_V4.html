@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>T2C CRM V4</title>
+<style>
+:root{--navy:#0f2a4a;--red:#ef3340;--bg:#f5f7fb;--card:#fff;--muted:#697386;--line:#dfe5ee;--green:#16815d;--amber:#c27a00}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#172033}
+button,input,select,textarea{font:inherit}
+.app{display:grid;grid-template-columns:235px 1fr;min-height:100vh}
+aside{background:var(--navy);color:white;padding:22px 16px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:24px}.brandmark{font-weight:900;font-size:28px}.brandmark span{color:var(--red)}.sub{opacity:.75;font-size:12px}
+nav button{width:100%;border:0;background:transparent;color:#dbe5f2;text-align:left;padding:12px 13px;border-radius:10px;margin:3px 0;cursor:pointer}
+nav button.active,nav button:hover{background:#183a64;color:#fff}
+main{padding:24px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+h1{font-size:24px;margin:0}.muted{color:var(--muted)}.grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 16px rgba(19,40,75,.05)}
+.kpi strong{font-size:24px;display:block;margin-top:5px}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:700}.primary{background:var(--navy);color:white}.danger{background:var(--red);color:white}.ghost{background:white;border:1px solid var(--line)}.success{background:var(--green);color:#fff}
+.section{display:none}.section.active{display:block}
+.table-wrap{overflow:auto}.tbl{width:100%;border-collapse:collapse}.tbl th,.tbl td{padding:11px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.tbl th{font-size:12px;text-transform:uppercase;color:var(--muted)}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.formgrid .full{grid-column:1/-1}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.modal{position:fixed;inset:0;background:rgba(9,24,44,.52);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.modal.open{display:flex}.modalbox{background:#fff;width:min(980px,100%);max-height:94vh;overflow:auto;border-radius:18px;padding:20px}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.close{border:0;background:#eef2f7;border-radius:50%;width:34px;height:34px;cursor:pointer}
+.quote-lines{margin-top:14px}.line-row{display:grid;grid-template-columns:2fr 1fr .8fr .8fr .8fr auto;gap:8px;margin-bottom:8px;align-items:center}.totals{margin-left:auto;width:min(360px,100%);margin-top:16px}.totals div{display:flex;justify-content:space-between;padding:5px 0}.totals .grand{font-size:20px;font-weight:900;color:var(--navy);border-top:2px solid var(--navy);margin-top:6px;padding-top:10px}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef3f9;font-size:12px}.low{background:#fff1e6;color:#9b5d00}.ok{background:#e7f6ef;color:#0a704f}
+.login{position:fixed;inset:0;background:linear-gradient(135deg,#0f2a4a,#173d69);display:flex;align-items:center;justify-content:center;z-index:100}.loginbox{width:min(390px,92vw);background:#fff;border-radius:22px;padding:28px;box-shadow:0 25px 60px rgba(0,0,0,.25)}.loginbox .brandmark{font-size:38px}.loginbox button{width:100%;margin-top:12px}
+.small{font-size:12px}.right{text-align:right}
+@media(max-width:900px){.app{grid-template-columns:1fr}aside{height:auto;position:static;padding:14px}.brand{margin-bottom:8px}nav{display:flex;overflow:auto;gap:4px}nav button{width:auto;white-space:nowrap}.kpis{grid-template-columns:repeat(2,1fr)}main{padding:14px}.line-row{grid-template-columns:1fr 1fr}.line-row>*{min-width:0}.formgrid{grid-template-columns:1fr}}
+@media print{aside,.topbar,.no-print{display:none!important}.app{display:block}main{padding:0}.card{border:0;box-shadow:none}}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+  <div class="loginbox">
+    <div class="brandmark">T2<span>C</span></div>
+    <h2 style="margin:4px 0 6px">CRM</h2>
+    <p class="muted">Connexion à votre outil commercial</p>
+    <label>Code d'accès</label>
+    <input id="pin" type="password" inputmode="numeric" placeholder="••••"/>
+    <button class="btn primary" onclick="login()">Se connecter</button>
+    <p class="small muted" style="margin-top:12px">Premier accès : code <b>2608</b>. Modifiez-le dans Paramètres.</p>
+  </div>
+</div>
+
+<div class="app">
+<aside>
+  <div class="brand"><div class="brandmark">T2<span>C</span></div><div><b>CRM</b><div class="sub">Devis • Factures • Stock</div></div></div>
+  <nav id="nav">
+    <button data-sec="dashboard" class="active">🏠 Tableau de bord</button>
+    <button data-sec="devis">📄 Devis</button>
+    <button data-sec="factures">🧾 Factures</button>
+    <button data-sec="stock">📦 Stock & Produits</button>
+    <button data-sec="clients">👥 Clients</button>
+    <button data-sec="settings">⚙️ Paramètres</button>
+  </nav>
+</aside>
+<main>
+  <div class="topbar"><div><h1 id="pageTitle">Tableau de bord</h1><div class="muted" id="today"></div></div><button class="btn ghost" onclick="logout()">Déconnexion</button></div>
+
+  <section id="dashboard" class="section active">
+    <div class="grid kpis">
+      <div class="card kpi"><span class="muted">Devis</span><strong id="kpiQuotes">0</strong></div>
+      <div class="card kpi"><span class="muted">Factures</span><strong id="kpiInvoices">0</strong></div>
+      <div class="card kpi"><span class="muted">CA facturé TTC</span><strong id="kpiRevenue">0 €</strong></div>
+      <div class="card kpi"><span class="muted">Stock faible</span><strong id="kpiLow">0</strong></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Actions rapides</h3>
+      <div class="actions"><button class="btn primary" onclick="openQuote()">+ Nouveau devis</button><button class="btn ghost" onclick="openProduct()">+ Nouveau produit</button><button class="btn ghost" onclick="openClient()">+ Nouveau client</button></div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3>Derniers devis</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>N°</th><th>Client</th><th>Date</th><th>Statut</th><th>Total TTC</th></tr></thead><tbody id="dashQuotes"></tbody></table></div></div>
+  </section>
+
+  <section id="devis" class="section">
+    <div class="card"><div class="actions" style="justify-content:space-between"><h3 style="margin:0">Devis</h3><button class="btn primary" onclick="openQuote()">+ Nouveau devis</button></div>
+    <div class="table-wrap"><table class="tbl"><thead><tr><th>N°</th><th>Client</th><th>Date</th><th>Statut</th><th>Total TTC</th><th>Actions</th></tr></thead><tbody id="quotesTable"></tbody></table></div></div>
+  </section>
+
+  <section id="factures" class="section">
+    <div class="card"><h3>Factures</h3><div class="table-wrap"><table class="tbl"><thead><tr><th>N°</th><th>Devis source</th><th>Client</th><th>Date</th><th>Statut</th><th>Total TTC</th><th>Actions</th></tr></thead><tbody id="invTable"></tbody></table></div></div>
+  </section>
+
+  <section id="stock" class="section">
+    <div class="card"><div class="actions" style="justify-content:space-between"><h3 style="margin:0">Produits & Stock</h3><button class="btn primary" onclick="openProduct()">+ Nouveau produit</button></div>
+    <div class="table-wrap"><table class="tbl"><thead><tr><th>Référence</th><th>Produit</th><th>Catégorie</th><th>Prix vente TTC</th><th>Stock</th><th>État</th><th>Actions</th></tr></thead><tbody id="stockTable"></tbody></table></div></div>
+  </section>
+
+  <section id="clients" class="section">
+    <div class="card"><div class="actions" style="justify-content:space-between"><h3 style="margin:0">Clients</h3><button class="btn primary" onclick="openClient()">+ Nouveau client</button></div>
+    <div class="table-wrap"><table class="tbl"><thead><tr><th>Nom / Société</th><th>Téléphone</th><th>Email</th><th>Adresse</th><th>Actions</th></tr></thead><tbody id="clientsTable"></tbody></table></div></div>
+  </section>
+
+  <section id="settings" class="section">
+    <div class="card"><h3>Paramètres T2C</h3>
+      <div class="formgrid">
+        <div><label>Téléphone</label><input id="setPhone"/></div><div><label>Email</label><input id="setEmail"/></div>
+        <div><label>TVA par défaut (%)</label><input id="setVat" type="number"/></div><div><label>Préfixe devis</label><input id="setQuotePrefix"/></div>
+        <div><label>Préfixe facture</label><input id="setInvPrefix"/></div><div><label>Nouveau code d'accès</label><input id="setPin" type="password" inputmode="numeric"/></div>
+        <div class="full"><label>Conditions</label><textarea id="setTerms" rows="4"></textarea></div>
+      </div><div class="actions" style="margin-top:14px"><button class="btn primary" onclick="saveSettings()">Enregistrer</button></div>
+      <p class="small muted">Important : cette V4 fonctionne immédiatement sur GitHub Pages avec stockage local dans le navigateur. Pour une connexion réellement sécurisée et des données partagées entre plusieurs appareils, il faudra brancher une base/authentification (Supabase par exemple).</p>
+    </div>
+  </section>
+</main>
+</div>
+
+<div id="quoteModal" class="modal"><div class="modalbox">
+  <div class="modalhead"><h2 id="quoteModalTitle">Nouveau devis</h2><button class="close" onclick="closeModal('quoteModal')">×</button></div>
+  <input type="hidden" id="qId"/>
+  <div class="formgrid">
+    <div><label>Client</label><select id="qClient"></select></div>
+    <div><label>Chantier</label><input id="qProject" placeholder="Maison individuelle"/></div>
+    <div><label>Date</label><input id="qDate" type="date"/></div>
+    <div><label>Statut</label><select id="qStatus"><option>Brouillon</option><option>Envoyé</option><option>Accepté</option><option>Refusé</option><option>Expiré</option></select></div>
+  </div>
+  <div class="quote-lines">
+    <div class="actions" style="justify-content:space-between"><h3>Lignes</h3><button class="btn ghost" onclick="addQuoteLine()">+ Ajouter une ligne</button></div>
+    <div id="quoteLines"></div>
+  </div>
+  <div class="formgrid" style="margin-top:10px">
+    <div><label>Remise TTC (€)</label><input id="qDiscount" type="number" value="0" oninput="recalcQuote()"/></div>
+    <div><label>Livraison TTC (€)</label><input id="qDelivery" type="number" value="0" oninput="recalcQuote()"/></div>
+  </div>
+  <div class="totals"><div><span>Total produits TTC</span><b id="qProductsTotal">0 €</b></div><div><span>TVA</span><b id="qVatTotal">0 €</b></div><div><span>Total HT</span><b id="qHtTotal">0 €</b></div><div class="grand"><span>TOTAL TTC</span><span id="qGrand">0 €</span></div></div>
+  <div class="actions" style="margin-top:18px"><button class="btn primary" onclick="saveQuote()">Enregistrer</button><button class="btn ghost" onclick="previewCurrentQuote()">Aperçu / PDF</button></div>
+</div></div>
+
+<div id="productModal" class="modal"><div class="modalbox" style="width:min(640px,100%)">
+  <div class="modalhead"><h2>Fiche produit</h2><button class="close" onclick="closeModal('productModal')">×</button></div>
+  <input type="hidden" id="pId"/>
+  <div class="formgrid">
+    <div><label>Référence</label><input id="pRef"/></div><div><label>Désignation</label><input id="pName"/></div>
+    <div><label>Catégorie</label><input id="pCat" placeholder="Machine, UI, Accessoire..."/></div><div><label>Prix de vente TTC (€)</label><input id="pSale" type="number" step="0.01"/></div>
+    <div><label>Prix d'achat HT (€)</label><input id="pBuy" type="number" step="0.01"/></div><div><label>Stock</label><input id="pStock" type="number"/></div>
+    <div><label>Seuil d'alerte</label><input id="pMin" type="number" value="2"/></div>
+  </div><div class="actions" style="margin-top:14px"><button class="btn primary" onclick="saveProduct()">Enregistrer</button></div>
+</div></div>
+
+<div id="clientModal" class="modal"><div class="modalbox" style="width:min(640px,100%)">
+  <div class="modalhead"><h2>Fiche client</h2><button class="close" onclick="closeModal('clientModal')">×</button></div>
+  <input type="hidden" id="cId"/>
+  <div class="formgrid"><div><label>Nom / Société</label><input id="cName"/></div><div><label>Téléphone</label><input id="cPhone"/></div><div><label>Email</label><input id="cEmail"/></div><div><label>Adresse</label><input id="cAddress"/></div></div>
+  <div class="actions" style="margin-top:14px"><button class="btn primary" onclick="saveClient()">Enregistrer</button></div>
+</div></div>
+
+<script>
+const DBKEY='t2c_crm_v4';
+const defaults={settings:{phone:'06 75 64 22 56',email:'francoismarietramini7@gmail.com',vat:20,quotePrefix:'DV',invPrefix:'FA',pin:'2608',terms:'Devis valable 30 jours\\nGarantie matériel 5 ans\\nPaiement à convenir ensemble\\nFourniture seule sauf mention contraire'},counters:{quote:1,invoice:1},products:[
+{id:'p1',ref:'PULAR 9',name:'Unité intérieure Pular 9',cat:'Unité intérieure',sale:230,buy:0,stock:0,min:2},
+{id:'p2',ref:'PULAR 12',name:'Unité intérieure Pular 12',cat:'Unité intérieure',sale:247,buy:0,stock:0,min:2},
+{id:'p3',ref:'FM 21',name:'Free Match 21 (moteur seul)',cat:'Moteur',sale:1287,buy:0,stock:0,min:1}
+],clients:[],quotes:[],invoices:[]};
+let db=load();
+function load(){try{const x=JSON.parse(localStorage.getItem(DBKEY));return x?Object.assign(structuredClone(defaults),x):structuredClone(defaults)}catch(e){return structuredClone(defaults)}}
+function save(){localStorage.setItem(DBKEY,JSON.stringify(db));renderAll()}
+function money(n){return (Number(n||0)).toLocaleString('fr-FR',{style:'currency',currency:'EUR'})}
+function uid(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function dateFR(s){if(!s)return'';return new Date(s+'T12:00:00').toLocaleDateString('fr-FR')}
+function login(){if(document.getElementById('pin').value===db.settings.pin){sessionStorage.setItem('t2c_auth','1');document.getElementById('login').style.display='none'}else alert('Code incorrect')}
+function logout(){sessionStorage.removeItem('t2c_auth');location.reload()}
+if(sessionStorage.getItem('t2c_auth')==='1')document.getElementById('login').style.display='none';
+document.getElementById('today').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(b.dataset.sec).classList.add('active');document.getElementById('pageTitle').textContent=b.textContent.replace(/^[^ ]+ /,'')});
+function openModal(id){document.getElementById(id).classList.add('open')} function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+function renderAll(){renderDashboard();renderQuotes();renderInvoices();renderStock();renderClients();renderSettings();populateClientSelect()}
+function quoteTotal(q){return Math.max(0,q.lines.reduce((a,l)=>a+(Number(l.price)*Number(l.qty)),0)-Number(q.discount||0)+Number(q.delivery||0))}
+function renderDashboard(){
+ document.getElementById('kpiQuotes').textContent=db.quotes.length;
+ document.getElementById('kpiInvoices').textContent=db.invoices.length;
+ document.getElementById('kpiRevenue').textContent=money(db.invoices.reduce((a,i)=>a+Number(i.total||0),0));
+ document.getElementById('kpiLow').textContent=db.products.filter(p=>Number(p.stock)<=Number(p.min)).length;
+ document.getElementById('dashQuotes').innerHTML=db.quotes.slice().reverse().slice(0,5).map(q=>`<tr><td>${q.number}</td><td>${clientName(q.clientId)}</td><td>${dateFR(q.date)}</td><td><span class="badge">${q.status}</span></td><td>${money(quoteTotal(q))}</td></tr>`).join('');
+}
+function clientName(id){return db.clients.find(c=>c.id===id)?.name||'Client non renseigné'}
+function renderQuotes(){document.getElementById('quotesTable').innerHTML=db.quotes.slice().reverse().map(q=>`<tr><td>${q.number}</td><td>${clientName(q.clientId)}</td><td>${dateFR(q.date)}</td><td><span class="badge">${q.status}</span></td><td>${money(quoteTotal(q))}</td><td><button class="btn ghost" onclick="editQuote('${q.id}')">Ouvrir</button> <button class="btn ghost" onclick="printQuote('${q.id}')">PDF</button> <button class="btn success" onclick="convertInvoice('${q.id}')">→ Facture</button></td></tr>`).join('')}
+function renderInvoices(){document.getElementById('invTable').innerHTML=db.invoices.slice().reverse().map(i=>`<tr><td>${i.number}</td><td>${i.quoteNumber||''}</td><td>${clientName(i.clientId)}</td><td>${dateFR(i.date)}</td><td><button class="badge" onclick="togglePaid('${i.id}')" style="border:0;cursor:pointer">${i.status}</button></td><td>${money(i.total)}</td><td><button class="btn ghost" onclick="printInvoice('${i.id}')">PDF</button></td></tr>`).join('')}
+function togglePaid(id){let i=db.invoices.find(x=>x.id===id);i.status=i.status==='Payée'?'À payer':'Payée';save()}
+
+function renderStock(){document.getElementById('stockTable').innerHTML=db.products.map(p=>{let low=Number(p.stock)<=Number(p.min);return `<tr><td>${p.ref}</td><td>${p.name}</td><td>${p.cat||''}</td><td>${money(p.sale)}</td><td>${p.stock}</td><td><span class="badge ${low?'low':'ok'}">${low?'Stock faible':'OK'}</span></td><td><button class="btn ghost" onclick="openProduct('${p.id}')">Modifier</button></td></tr>`}).join('')}
+function openProduct(id=''){let p=id?db.products.find(x=>x.id===id):{id:'',ref:'',name:'',cat:'',sale:'',buy:'',stock:0,min:2};['Id','Ref','Name','Cat','Sale','Buy','Stock','Min'].forEach(k=>document.getElementById('p'+k).value=p[k.toLowerCase()]??p[k[0].toLowerCase()+k.slice(1)]??'');document.getElementById('pId').value=p.id;document.getElementById('pRef').value=p.ref;document.getElementById('pName').value=p.name;document.getElementById('pCat').value=p.cat;document.getElementById('pSale').value=p.sale;document.getElementById('pBuy').value=p.buy;document.getElementById('pStock').value=p.stock;document.getElementById('pMin').value=p.min;openModal('productModal')}
+function saveProduct(){let id=document.getElementById('pId').value;let p={id:id||uid('p'),ref:pRef.value.trim(),name:pName.value.trim(),cat:pCat.value.trim(),sale:Number(pSale.value||0),buy:Number(pBuy.value||0),stock:Number(pStock.value||0),min:Number(pMin.value||0)};if(!p.name)return alert('Désignation obligatoire');let ix=db.products.findIndex(x=>x.id===id);if(ix>=0)db.products[ix]=p;else db.products.push(p);save();closeModal('productModal')}
+
+function renderClients(){document.getElementById('clientsTable').innerHTML=db.clients.map(c=>`<tr><td>${c.name}</td><td>${c.phone||''}</td><td>${c.email||''}</td><td>${c.address||''}</td><td><button class="btn ghost" onclick="openClient('${c.id}')">Modifier</button></td></tr>`).join('')}
+function openClient(id=''){let c=id?db.clients.find(x=>x.id===id):{id:'',name:'',phone:'',email:'',address:''};cId.value=c.id;cName.value=c.name;cPhone.value=c.phone;cEmail.value=c.email;cAddress.value=c.address;openModal('clientModal')}
+function saveClient(){let id=cId.value;let c={id:id||uid('c'),name:cName.value.trim(),phone:cPhone.value.trim(),email:cEmail.value.trim(),address:cAddress.value.trim()};if(!c.name)return alert('Nom obligatoire');let ix=db.clients.findIndex(x=>x.id===id);if(ix>=0)db.clients[ix]=c;else db.clients.push(c);save();closeModal('clientModal')}
+
+function populateClientSelect(){qClient.innerHTML='<option value="">— Sélectionner —</option>'+db.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+function nextQuoteNumber(){let d=new Date();let yy=String(d.getFullYear()).slice(-2),mm=String(d.getMonth()+1).padStart(2,'0');return `${db.settings.quotePrefix}-${yy}${mm}-${String(db.counters.quote).padStart(4,'0')}`}
+function nextInvNumber(){return `${db.settings.invPrefix}-${new Date().getFullYear()}-${String(db.counters.invoice).padStart(4,'0')}`}
+function openQuote(){qId.value='';quoteModalTitle.textContent='Nouveau devis — '+nextQuoteNumber();qDate.value=new Date().toISOString().slice(0,10);qStatus.value='Brouillon';qClient.value='';qProject.value='';qDiscount.value=0;qDelivery.value=0;quoteLines.innerHTML='';addQuoteLine();recalcQuote();openModal('quoteModal')}
+function productOptions(){return '<option value="">Produit libre</option>'+db.products.map(p=>`<option value="${p.id}">${p.ref} — ${p.name}</option>`).join('')}
+function addQuoteLine(line={productId:'',desc:'',ref:'',price:0,qty:1}){let div=document.createElement('div');div.className='line-row';div.innerHTML=`<select onchange="pickProduct(this)">${productOptions()}</select><input placeholder="Désignation" value="${esc(line.desc)}"><input placeholder="Référence" value="${esc(line.ref)}"><input type="number" step="0.01" placeholder="Prix TTC" value="${line.price}" oninput="recalcQuote()"><input type="number" min="1" value="${line.qty}" oninput="recalcQuote()"><button class="btn ghost" onclick="this.parentElement.remove();recalcQuote()">×</button>`;quoteLines.appendChild(div);div.children[0].value=line.productId||''}
+function pickProduct(sel){let p=db.products.find(x=>x.id===sel.value);if(!p)return;let r=sel.parentElement;r.children[1].value=p.name;r.children[2].value=p.ref;r.children[3].value=p.sale;recalcQuote()}
+function collectLines(){return [...quoteLines.querySelectorAll('.line-row')].map(r=>({productId:r.children[0].value,desc:r.children[1].value,ref:r.children[2].value,price:Number(r.children[3].value||0),qty:Number(r.children[4].value||0)})).filter(l=>l.desc||l.ref||l.price)}
+function recalcQuote(){let lines=collectLines(),prod=lines.reduce((a,l)=>a+l.price*l.qty,0),ttc=Math.max(0,prod-Number(qDiscount.value||0)+Number(qDelivery.value||0)),vat=Number(db.settings.vat||20),ht=ttc/(1+vat/100);qProductsTotal.textContent=money(prod);qGrand.textContent=money(ttc);qHtTotal.textContent=money(ht);qVatTotal.textContent=money(ttc-ht)}
+function saveQuote(){let id=qId.value,existing=id?db.quotes.find(x=>x.id===id):null;let q={id:id||uid('q'),number:existing?.number||nextQuoteNumber(),clientId:qClient.value,project:qProject.value,date:qDate.value,status:qStatus.value,lines:collectLines(),discount:Number(qDiscount.value||0),delivery:Number(qDelivery.value||0)};if(!q.clientId)return alert('Sélectionnez un client');if(!q.lines.length)return alert('Ajoutez au moins une ligne');let ix=db.quotes.findIndex(x=>x.id===id);if(ix>=0)db.quotes[ix]=q;else{db.quotes.push(q);db.counters.quote++}save();qId.value=q.id;quoteModalTitle.textContent='Devis '+q.number;alert('Devis enregistré : '+q.number)}
+function editQuote(id){let q=db.quotes.find(x=>x.id===id);qId.value=q.id;quoteModalTitle.textContent='Devis '+q.number;qClient.value=q.clientId;qProject.value=q.project;qDate.value=q.date;qStatus.value=q.status;qDiscount.value=q.discount||0;qDelivery.value=q.delivery||0;quoteLines.innerHTML='';q.lines.forEach(addQuoteLine);recalcQuote();openModal('quoteModal')}
+function previewCurrentQuote(){if(!qId.value){saveQuote();if(!qId.value)return}printQuote(qId.value)}
+function convertInvoice(id){let q=db.quotes.find(x=>x.id===id);if(!q)return;let already=db.invoices.find(i=>i.quoteId===q.id);if(already)return alert('Une facture existe déjà : '+already.number);let i={id:uid('i'),number:nextInvNumber(),quoteId:q.id,quoteNumber:q.number,clientId:q.clientId,date:new Date().toISOString().slice(0,10),status:'À payer',lines:structuredClone(q.lines),discount:q.discount,delivery:q.delivery,total:quoteTotal(q),project:q.project};db.invoices.push(i);db.counters.invoice++;q.status='Accepté';q.lines.forEach(l=>{if(l.productId){let p=db.products.find(x=>x.id===l.productId);if(p)p.stock=Math.max(0,Number(p.stock)-Number(l.qty))}});save();alert('Facture créée : '+i.number)}
+function renderSettings(){setPhone.value=db.settings.phone;setEmail.value=db.settings.email;setVat.value=db.settings.vat;setQuotePrefix.value=db.settings.quotePrefix;setInvPrefix.value=db.settings.invPrefix;setTerms.value=db.settings.terms;setPin.value=''}
+function saveSettings(){db.settings.phone=setPhone.value.trim();db.settings.email=setEmail.value.trim();db.settings.vat=Number(setVat.value||20);db.settings.quotePrefix=setQuotePrefix.value.trim()||'DV';db.settings.invPrefix=setInvPrefix.value.trim()||'FA';db.settings.terms=setTerms.value;if(setPin.value.trim())db.settings.pin=setPin.value.trim();save();alert('Paramètres enregistrés')}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function docHTML(kind,obj){let c=db.clients.find(x=>x.id===obj.clientId)||{};let total=kind==='DEVIS'?quoteTotal(obj):obj.total;let vat=Number(db.settings.vat||20),ht=total/(1+vat/100),vatAmt=total-ht;return `<!doctype html><html><head><meta charset="utf-8"><title>${kind} ${obj.number}</title><style>
+body{font-family:Arial,sans-serif;margin:0;color:#12213b} .page{padding:34px 42px;position:relative;min-height:100vh}.wm{position:fixed;inset:30% 0 auto 0;text-align:center;font-size:150px;font-weight:900;color:rgba(15,42,74,.035);transform:rotate(-18deg);z-index:-1}.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:4px solid #ef3340;padding-bottom:18px}.logo{font-size:46px;font-weight:900;color:#0f2a4a}.logo span{color:#ef3340}.type{font-size:28px;font-weight:900}.meta{color:#687386;margin-top:6px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}.card{border:1px solid #dfe5ee;border-radius:12px;padding:14px;background:#fff}table{width:100%;border-collapse:collapse;margin-top:12px}th{background:#0f2a4a;color:#fff;padding:10px;text-align:left}td{padding:10px;border-bottom:1px solid #e5eaf1}.tot{width:380px;margin-left:auto;margin-top:18px}.tot div{display:flex;justify-content:space-between;padding:6px 0}.grand{font-size:21px;font-weight:900;border-top:2px solid #0f2a4a;padding-top:10px!important}.terms{margin-top:30px;background:#f4f7fb;padding:14px;border-radius:12px;white-space:pre-line}.foot{margin-top:40px;border-top:1px solid #dfe5ee;padding-top:14px;color:#687386;display:flex;justify-content:space-between}@media print{button{display:none}}
+</style></head><body><div class="page"><div class="wm">T2C</div><div class="head"><div><div class="logo">T2<span>C</span></div><div>Vente climatisation & accessoires</div></div><div class="right"><div class="type">${kind}</div><div class="meta">N° ${obj.number}<br>${dateFR(obj.date)}</div></div></div>
+<div class="cards"><div class="card"><b>CLIENT</b><br>${esc(c.name)}<br>${esc(c.address||'')}<br>${esc(c.phone||'')}<br>${esc(c.email||'')}</div><div class="card"><b>CHANTIER</b><br>${esc(obj.project||'')}</div></div>
+<table><thead><tr><th>Désignation</th><th>Référence</th><th>Prix unit. TTC</th><th>Qté</th><th>Total TTC</th></tr></thead><tbody>${obj.lines.map(l=>`<tr><td>${esc(l.desc)}</td><td>${esc(l.ref)}</td><td>${money(l.price)}</td><td>${l.qty}</td><td>${money(l.price*l.qty)}</td></tr>`).join('')}</tbody></table>
+<div class="tot"><div><span>Remise</span><b>- ${money(obj.discount||0)}</b></div><div><span>Livraison</span><b>${money(obj.delivery||0)}</b></div><div><span>Total HT</span><b>${money(ht)}</b></div><div><span>TVA ${vat}%</span><b>${money(vatAmt)}</b></div><div class="grand"><span>TOTAL TTC</span><span>${money(total)}</span></div></div>
+<div class="terms"><b>CONDITIONS</b><br>${esc(db.settings.terms)}</div><div class="foot"><span>${esc(db.settings.phone)}</span><span>${esc(db.settings.email)}</span></div></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`}
+function printQuote(id){let q=db.quotes.find(x=>x.id===id);let w=window.open('','_blank');w.document.write(docHTML('DEVIS',q));w.document.close()}
+function printInvoice(id){let i=db.invoices.find(x=>x.id===id);let w=window.open('','_blank');w.document.write(docHTML('FACTURE',i));w.document.close()}
+renderAll();
+</script>
+</body>
+</html>
