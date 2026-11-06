@@ -158,7 +158,7 @@ input,select,textarea{font-size:16px}
   #nav{
     position:fixed;z-index:90;left:8px;right:8px;
     bottom:max(8px,env(safe-area-inset-bottom));
-    height:68px;display:grid!important;grid-template-columns:repeat(5,1fr);
+    height:68px;display:grid!important;grid-template-columns:repeat(6,1fr);
     gap:3px!important;padding:6px;overflow:visible!important;
     border:1px solid rgba(12,47,124,.10);border-radius:22px;
     background:rgba(255,255,255,.95);
@@ -176,6 +176,7 @@ input,select,textarea{font-size:16px}
   #nav button[data-sec="dashboard"]::after{content:"Accueil"}
   #nav button[data-sec="devis"]::after{content:"Devis"}
   #nav button[data-sec="factures"]::after{content:"Factures"}
+  #nav button[data-sec="gestion"]::after{content:"Gestion"}
   #nav button[data-sec="stock"]::after{content:"Stock"}
   #nav button[data-sec="clients"]::after{content:"Clients"}
   #nav button[data-sec="settings"]{display:none!important}
@@ -346,6 +347,9 @@ input,select,textarea{font-size:16px}
  #stock .stock-empty{display:block!important;grid-column:1/-1!important}
 }
 </style>
+<style id="t2c-management-styles">
+.mgmt-tabs{display:flex;gap:7px;overflow-x:auto;padding:12px 0 16px;margin-top:12px;border-bottom:1px solid #e6ebf2}.mgmt-tabs button{white-space:nowrap;padding:10px 13px;border:1px solid #dfe6ee;background:#fff;color:#42536c;border-radius:10px;cursor:pointer;font:inherit;font-size:13px;font-weight:650}.mgmt-tabs button.active{background:#0f2a4a;border-color:#0f2a4a;color:#fff}.mgmt-pane{padding-top:15px}.mgmt-mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}.mgmt-mini-grid>div{background:#f7f9fc;border:1px solid #e4e9f1;padding:15px;border-radius:13px}.mgmt-mini-grid small{display:block;color:#64748b;margin-bottom:7px}.mgmt-mini-grid strong{font-size:20px;color:#163252}.mgmt-row-actions{display:flex;gap:5px;flex-wrap:wrap}@media(max-width:700px){.mgmt-tabs{margin:8px -5px 0}.mgmt-tabs button{font-size:12px;padding:10px}.mgmt-root{padding:12px}}
+</style>
 </head>
 <body>
 <div id="loginScreen" class="login">
@@ -366,6 +370,7 @@ input,select,textarea{font-size:16px}
   <button data-sec="dashboard" class="active">🏠 Tableau de bord</button>
   <button data-sec="devis">📄 Devis</button>
   <button data-sec="factures">🧾 Factures</button>
+   <button data-sec="gestion">📊 Gestion</button>
   <button data-sec="stock">📦 Stock & Produits</button>
   <button data-sec="clients">👥 Clients</button>
   <button data-sec="settings">⚙️ Paramètres</button>
@@ -418,7 +423,7 @@ input,select,textarea{font-size:16px}
 
  <section id="factures" class="section">
   <div class="card">
-   <div class="actions" style="justify-content:space-between;align-items:center"><div><h3 style="margin-bottom:4px">Factures</h3><div class="muted small">Crée une facture depuis un devis ou ajoute une facture manuelle. Le stock sort quand la facture est marquée « Envoyée ».</div></div><button class="btn primary" onclick="openManualInvoice()">+ Nouvelle facture</button></div>
+   <div class="actions" style="justify-content:space-between;align-items:center"><div><h3 style="margin-bottom:4px">Factures</h3><div class="muted small">Facture depuis un devis ou vente comptoir sans devis. Le stock sort une seule fois lors de l’émission.</div></div><button class="btn primary" onclick="openCounterSale()">+ Vente comptoir / facture</button></div>
    <div class="table-wrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>N°</th><th>Devis source</th><th>Client</th><th>Date</th><th>Statut</th><th>Règlement</th><th>Total HT</th><th>Total TTC</th><th>Actions</th></tr></thead><tbody id="invoiceTable"></tbody></table></div>
   </div>
  </section>
@@ -465,6 +470,19 @@ input,select,textarea{font-size:16px}
   </div>
  </section>
 
+
+ <section id="gestion" class="section">
+  <div class="card mgmt-root">
+   <div class="actions" style="justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">Gestion commerciale</h2><p class="small muted" style="margin:6px 0 0">Factures clients et fournisseurs, règlements et traçabilité du stock.</p></div><button class="btn ghost" onclick="printManagementReport()">🖨️ Imprimer un état</button><button class="btn primary" onclick="openSupplierForm()">+ Facture fournisseur</button></div>
+   <div class="mgmt-tabs" role="tablist" aria-label="Gestion"><button type="button" class="active" data-mgmt="clients" onclick="showManagementTab('clients')">Factures clients</button><button type="button" data-mgmt="suppliers" onclick="showManagementTab('suppliers')">Factures fournisseurs</button><button type="button" data-mgmt="payments" onclick="showManagementTab('payments')">Règlements</button><button type="button" data-mgmt="movements" onclick="showManagementTab('movements')">Mouvements de stock</button><button type="button" data-mgmt="inventory" onclick="showManagementTab('inventory')">Stock agence</button></div>
+   <div id="mgmtClients" class="mgmt-pane"><div class="actions" style="justify-content:space-between;align-items:center"><b>Factures de vente</b><button class="btn ghost" onclick="showSection('factures')">Ouvrir les factures</button></div><div id="mgmtClientSummary"></div></div>
+   <div id="mgmtSuppliers" class="mgmt-pane" style="display:none"><div class="table-wrap"><table class="tbl"><thead><tr><th>Fournisseur / N°</th><th>Date</th><th>Montant HT</th><th>TTC</th><th>Règlement</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="mgmtSupplierRows"></tbody></table></div></div>
+   <div id="mgmtPayments" class="mgmt-pane" style="display:none"><div id="mgmtPaymentSummary"></div></div>
+   <div id="mgmtInventory" class="mgmt-pane" style="display:none"><div class="actions" style="justify-content:space-between;align-items:center"><b>Inventaire de l’agence T2C</b><button class="btn ghost" onclick="printManagementReport('inventory')">Imprimer l’inventaire</button></div><div id="mgmtInventoryContent"></div></div>
+   <div id="mgmtMovements" class="mgmt-pane" style="display:none"><div class="table-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Produit / Référence</th><th>Nature</th><th>Quantité</th><th>Document</th></tr></thead><tbody id="mgmtMovementRows"></tbody></table></div></div>
+   <p class="small muted" style="margin-top:16px">Les factures fournisseurs enregistrées ici sont des fiches de suivi. Pour joindre un PDF original, une fonction de stockage sécurisé des documents sera nécessaire.</p>
+  </div>
+ </section>
  <section id="settings" class="section">
   <div class="card"><h3>Paramètres</h3><div class="formgrid">
    <div><label>Compte connecté</label><input id="cloudUserEmail" type="text" readonly value="—"></div>
@@ -649,7 +667,9 @@ function cloudPayload(table){
  if(table==='invoices'){
    return {
      items:invoices(),
-     counter:Number(localStorage.getItem(KEY_INV_COUNTER)||1)
+     counter:Number(localStorage.getItem(KEY_INV_COUNTER)||1),
+     supplierInvoices:managementData().supplierInvoices,
+     movements:managementData().movements
    };
  }
  return {items:[]};
@@ -674,6 +694,10 @@ function applyCloudPayload(table,data){
    if(table==='invoices'){
      crmWriteStorage(KEY_INV,JSON.stringify(Array.isArray(data?.items)?data.items:[]));
      if(Number.isFinite(Number(data?.counter)))crmWriteStorage(KEY_INV_COUNTER,String(data.counter));
+     if(Array.isArray(data?.supplierInvoices)||Array.isArray(data?.movements)){
+       const current=managementData();
+       crmWriteStorage('t2c_management_shared_v1',JSON.stringify({supplierInvoices:Array.isArray(data.supplierInvoices)?data.supplierInvoices:current.supplierInvoices,movements:Array.isArray(data.movements)?data.movements:current.movements}));
+     }
    }
  }finally{
    cloudApplying=false;
@@ -997,7 +1021,7 @@ function showSection(id,btn,fromBack=false){
  document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));
  if(btn)btn.classList.add('active'); else document.querySelector(`#nav button[data-sec="${id}"]`)?.classList.add('active');
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');
- const names={dashboard:'Tableau de bord',devis:'Devis',factures:'Factures',stock:'Stock & Produits',clients:'Clients',settings:'Paramètres'};
+ const names={dashboard:'Tableau de bord',devis:'Devis',factures:'Factures',gestion:'Gestion commerciale',stock:'Stock & Produits',clients:'Clients',settings:'Paramètres'};
  pageTitle.textContent=names[id]||id;
  if(id==='devis' && !creatorFrame.srcdoc) initCreator();
  renderAll();
@@ -1154,6 +1178,7 @@ function openManualInvoice(editIdx=null){
  invoiceEditorLines=JSON.parse(JSON.stringify(inv?.lines||[]));
  renderInvoiceEditorLines();
  el('manualInvoiceModal').style.display='flex';
+ refreshCounterProducts();
 }
 function toggleInvoicePaymentFields(){const paid=el('miPaymentStatus')?.value==='Payée';for(const id of ['miPaymentMethod','miPaymentDate']){if(el(id))el(id).disabled=!paid}}
 function closeManualInvoice(){const modal=el('manualInvoiceModal');if(modal)modal.style.display='none'}
@@ -1161,6 +1186,53 @@ function fillInvoiceClient(){
  const s=el('miClient');if(!s||s.value==='')return;
  const c=clients()[Number(s.value)];if(!c)return;
  el('miClientName').value=c.name||'';el('miClientPhone').value=c.phone||'';el('miClientEmail').value=c.email||'';el('miClientAddress').value=c.address||'';
+}
+// Caisse T2C : vente directe sans devis, avec sélection structurée du catalogue.
+function openCounterSale(){
+ openManualInvoice();
+ if(el('invoiceEditorTitle'))el('invoiceEditorTitle').textContent='Vente comptoir — facture client';
+ refreshCounterProducts();
+}
+function refreshCounterProducts(){
+ const dest=el('miProductSelect');if(!dest)return;
+ const query=(el('miProductSearch')?.value||'').trim().toLowerCase();
+ const data=products().filter(p=>!query||String(p.name||'').toLowerCase().includes(query)||String(p.ref||'').toLowerCase().includes(query));
+ dest.innerHTML='<option value="">— Sélectionner un produit —</option>'+data.map(p=>'<option value="'+esc(p.ref)+'">'+esc(p.ref)+' — '+esc(p.name)+' · '+euro(p.price)+' TTC · Stock : '+Number(p.stock||0)+'</option>').join('');
+}
+function addInvoiceSelectedProduct(){
+ const ref=el('miProductSelect')?.value;
+ if(!ref){alert('Sélectionne un produit du catalogue.');return}
+ const p=products().find(p=>String(p.ref)===String(ref));
+ if(!p){alert('Produit introuvable.');return}
+ invoiceEditorLines.push({name:p.name,ref:p.ref,price:Number(p.price||0),qty:1,type:p.type||'accessory',image:p.image||''});
+ renderInvoiceEditorLines();
+}
+function issueCounterInvoice(){
+ const name=el('miClientName').value.trim();
+ if(!name){alert('Indique le nom du client (ou « Client comptoir »).');return}
+ if(!invoiceEditorLines.length||invoiceEditorLines.some(l=>!String(l.name||'').trim()||Number(l.qty||0)<=0)){
+   alert('Ajoute au moins un article avec une quantité valide.');return;
+ }
+ const oldIndex=el('miEditIndex').value;
+ const oldStatus=el('miStatus').value;
+ const oldPay=el('miPaymentStatus').value;
+ // Emission/stock avant encaissement : pas de double sortie et paiement en deuxième temps.
+ if(oldIndex!=='' && invoices()[Number(oldIndex)]?.stockApplied){
+   alert('Cette facture a déjà été émise. Utilise « Modifier » ou « Encaisser ».');return;
+ }
+ if(!confirm('Émettre la facture maintenant et retirer les quantités du stock agence ?'))return;
+ el('miStatus').value='Brouillon';el('miPaymentStatus').value='Non payée';
+ const priorIds=new Set(invoices().map(x=>x.id));
+ saveManualInvoice();
+ const items=invoices();
+ const index=oldIndex===''?items.findIndex(x=>!priorIds.has(x.id)):Number(oldIndex);
+ if(index<0||!items[index])return;
+ sendInvoice(index);
+ if(oldPay==='Payée' && invoices()[index]?.stockApplied){
+   const method=el('miPaymentMethod')?.value||'';
+   const date=el('miPaymentDate')?.value||new Date().toISOString().slice(0,10);
+   if(method){const arr=invoices();const ii=arr.findIndex(x=>x.id===items[index].id);if(ii>=0){arr[ii].status='Payée';arr[ii].paymentStatus='Payée';arr[ii].paymentMethod=method;arr[ii].paymentDate=date;crmWriteStorage(KEY_INV,JSON.stringify(arr));persistKV(KEY_INV,JSON.stringify(arr));renderAll();}}
+ }
 }
 function addInvoiceCatalogLine(){
  const ps=products();
@@ -1373,7 +1445,7 @@ document.addEventListener('click',function(e){
 },true);
 
 function renderAll(){
- renderDashboard();renderQuotes();renderInvoices();renderStock();renderClients();renderSettings();refreshQuoteClientPicker();
+ renderDashboard();renderQuotes();renderInvoices();renderStock();renderClients();renderSettings();refreshQuoteClientPicker();renderManagement();
  requestAnimationFrame(()=>{decorateMobileTables();updatePrivateCostUI()});
 }
 
@@ -1471,6 +1543,7 @@ function sendInvoice(idx){
  const m=quoteStatusMap();m[i.quoteNumber]='facture';crmWriteStorage(KEY_QSTATUS,JSON.stringify(m));
  crmWriteStorage(KEY_PRODUCTS,JSON.stringify(ps));crmWriteStorage(KEY_INV,JSON.stringify(a));
  mergePriceListProducts();syncCatalogBridge();renderAll();hydrateMemory();
+ (i.lines||[]).forEach(l=>{const p=ps.find(x=>String(x.ref||'')===String(l.ref||''));if(p&&Number(l.qty||0))addStockMovement({ref:p.ref,name:p.name,qty:-Number(l.qty),kind:'Sortie client',document:i.number,date:new Date().toISOString()})});
  alert('Facture marquée envoyée. Les quantités ont été sorties du stock.');
 }
 function markPaid(idx){
@@ -1568,6 +1641,7 @@ function adjustStock(idx,delta){
  const ps=products(),p=ps[idx];if(!p)return;
  if(delta<0 && Number(p.stock||0)+delta<0 && !confirm('Le stock deviendra négatif. Continuer ?'))return;
  p.stock=Number(p.stock||0)+Number(delta);saveProducts(ps);
+ addStockMovement({ref:p.ref,name:p.name,qty:Number(delta),kind:Number(delta)>0?'Entrée manuelle':'Sortie manuelle',document:'Ajustement',date:new Date().toISOString()});
 }
 function renderStock(){
  const ps=products();
@@ -1667,6 +1741,127 @@ async function getTechSheetForRef(ref){
  const p=products().find(x=>String(x.ref||'')===String(ref||''));if(!p?.techKey)return null;return await readFile(p.techKey);
 }
 
+// Gestion commerciale T2C - les fiches fournisseur et l'historique voyagent dans
+// le payload Supabase de la table invoices, sans changer son schema existant.
+let currentManagementTab='clients';
+function managementData(){
+ try{const d=JSON.parse(localStorage.getItem('t2c_management_shared_v1')||'{}');return {supplierInvoices:Array.isArray(d.supplierInvoices)?d.supplierInvoices:[],movements:Array.isArray(d.movements)?d.movements:[]}}
+ catch(e){return {supplierInvoices:[],movements:[]}}
+}
+function saveManagement(d){
+ crmWriteStorage('t2c_management_shared_v1',JSON.stringify(d));
+ scheduleCloudPush(100,'invoices');renderManagement();
+}
+function addStockMovement(m){
+ const d=managementData();
+ d.movements.unshift({id:'mv_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),...m});
+ d.movements=d.movements.slice(0,1000);saveManagement(d);
+}
+function showManagementTab(tab){
+ currentManagementTab=tab;
+ document.querySelectorAll('[data-mgmt]').forEach(b=>b.classList.toggle('active',b.dataset.mgmt===tab));
+ ({clients:'mgmtClients',suppliers:'mgmtSuppliers',payments:'mgmtPayments',movements:'mgmtMovements'});
+ ['clients','suppliers','payments','movements','inventory'].forEach(k=>{const p=el('mgmt'+k[0].toUpperCase()+k.slice(1));if(p)p.style.display=k===tab?'block':'none'});
+ renderManagement();
+}
+function renderManagement(){
+ const root=el('gestion');if(!root)return;
+ const d=managementData(),sales=invoices(),sup=d.supplierInvoices;
+ const pendingSales=sales.filter(i=>(i.paymentStatus||'Non payée')!=='Payée');
+ const pendingSup=sup.filter(i=>i.paymentStatus!=='Payée');
+ const saleHT=i=>Number(i.totals?.ht??(Number(i.total||0)/(1+Number(i.totals?.vatRate??20)/100)));
+ const sum=a=>a.reduce((n,i)=>n+Number(i||0),0);
+ const saleDue=sum(pendingSales.map(i=>Number(i.total||0)));
+ const supDue=sum(pendingSup.map(i=>Number(i.ttc||0)));
+ if(el('mgmtClientSummary'))el('mgmtClientSummary').innerHTML=`<div class="mgmt-mini-grid"><div><small>Factures clients</small><strong>${sales.length}</strong></div><div><small>À encaisser TTC</small><strong>${euro(saleDue)}</strong></div><div><small>Chiffre facturé HT</small><strong>${euro(sum(sales.map(saleHT)))}</strong></div></div><div class="small muted">Pour consulter, modifier, exporter ou encaisser une facture client, utilise l'onglet Factures existant.</div>`;
+ if(el('mgmtSupplierRows'))el('mgmtSupplierRows').innerHTML=sup.length?sup.map(i=>`<tr><td><b>${esc(i.supplier)}</b><div class="small muted">${esc(i.number)}</div></td><td>${esc(i.date)}</td><td>${euro(i.ht)}</td><td>${euro(i.ttc)}</td><td><span class="badge ${i.paymentStatus==='Payée'?'paid':''}">${esc(i.paymentStatus)}</span><div class="small muted">${esc(i.paymentMethod||'')}</div></td><td>${i.stockReceived?'Réceptionné':(i.lines?.length||i.productRef&&i.qty?'À réceptionner':'Sans produits')}</td><td><div class="mgmt-row-actions"><button class="mini-btn" onclick="openSupplierForm('${esc(i.id)}')">Modifier</button>${!i.stockReceived&&(i.lines?.length||i.productRef&&i.qty)?`<button class="mini-btn" onclick="receiveSupplierStock('${esc(i.id)}')">Réceptionner</button>`:''}<button class="mini-btn" onclick="toggleSupplierPayment('${esc(i.id)}')">${i.paymentStatus==='Payée'?'Non payée':'Régler'}</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="muted">Aucune facture fournisseur enregistrée.</td></tr>';
+ if(el('mgmtPaymentSummary'))el('mgmtPaymentSummary').innerHTML=`<div class="mgmt-mini-grid"><div><small>Clients à encaisser TTC</small><strong>${euro(saleDue)}</strong></div><div><small>Fournisseurs à régler TTC</small><strong>${euro(supDue)}</strong></div><div><small>Factures en attente</small><strong>${pendingSales.length+pendingSup.length}</strong></div></div><p class="small muted">Les règlements clients se modifient dans Factures ; les règlements fournisseurs dans Factures fournisseurs.</p><div class="table-wrap"><table class="tbl"><thead><tr><th>Type</th><th>Référence</th><th>Tiers</th><th>Montant TTC</th><th>État</th></tr></thead><tbody>${pendingSales.map(i=>`<tr><td>Client</td><td>${esc(i.number)}</td><td>${esc(i.client?.name)}</td><td>${euro(i.total)}</td><td>À encaisser</td></tr>`).join('')}${pendingSup.map(i=>`<tr><td>Fournisseur</td><td>${esc(i.number)}</td><td>${esc(i.supplier)}</td><td>${euro(i.ttc)}</td><td>À régler</td></tr>`).join('')}</tbody></table></div>`;
+ if(el('mgmtInventoryContent')){const ps=products();const n=ps.reduce((v,p)=>v+Number(p.stock||0),0);el('mgmtInventoryContent').innerHTML=`<div class="mgmt-mini-grid"><div><small>Références</small><strong>${ps.length}</strong></div><div><small>Unités physiques en agence</small><strong>${n}</strong></div></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Référence</th><th>Produit</th><th>Stock physique</th><th>Réservé</th><th>Disponible</th></tr></thead><tbody>${ps.map(p=>{const reserved=typeof reservedQty==='function'?Number(reservedQty(p.ref)||0):0;return `<tr><td>${esc(p.ref)}</td><td>${esc(p.name)}</td><td>${Number(p.stock||0)}</td><td>${reserved}</td><td>${Number(p.stock||0)-reserved}</td></tr>`}).join('')}</tbody></table></div>`;}
+ if(el('mgmtMovementRows'))el('mgmtMovementRows').innerHTML=d.movements.length?d.movements.slice(0,300).map(m=>`<tr><td>${esc(new Date(m.date).toLocaleDateString('fr-FR'))}</td><td><b>${esc(m.name)}</b><div class="small muted">${esc(m.ref)}</div></td><td>${esc(m.kind)}</td><td>${Number(m.qty)>0?'+':''}${Number(m.qty||0)}</td><td>${esc(m.document)}</td></tr>`).join(''):'<tr><td colspan="5" class="muted">Les prochains ajustements et réceptions seront tracés ici. Les mouvements historiques antérieurs ne peuvent pas être reconstitués automatiquement.</td></tr>';
+}
+function printManagementReport(tab=currentManagementTab){
+ renderManagement();
+ const headings={clients:'Suivi des factures clients',suppliers:'Registre des factures fournisseurs',payments:'État des règlements',movements:'Journal des mouvements de stock',inventory:'Inventaire du stock en agence'};
+ const elem=el('mgmt'+tab[0].toUpperCase()+tab.slice(1));
+ if(!elem)return;
+ const content=elem.innerHTML.replace(/<button\b[^>]*>[\s\S]*?<\/button>/gi,'');
+ const date=new Date().toLocaleString('fr-FR');
+ const report=`<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>${headings[tab]||'Gestion T2C'}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#1b2839;margin:32px;font-size:12px}header{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:2px solid #193a5d;margin-bottom:24px}h1{font-size:20px;margin:0}h2{font-size:14px}.muted,.small{color:#64748b;font-size:11px}.mgmt-mini-grid{display:flex;gap:12px;margin:15px 0}.mgmt-mini-grid>div{border:1px solid #d5dce4;border-radius:7px;padding:12px;flex:1}.mgmt-mini-grid small{display:block;color:#64748b}.mgmt-mini-grid strong{display:block;font-size:18px;margin-top:5px}table{border-collapse:collapse;width:100%;font-size:11px}th,td{padding:8px;border-bottom:1px solid #d9e0e9;text-align:left;vertical-align:top}th{background:#f0f4f9}.badge{font-weight:bold}button{display:none}@media print{@page{size:A4;margin:12mm}body{margin:0}tr{break-inside:avoid}}</style></head><body><header><div><strong style="font-size:23px">T2C</strong><h1>${headings[tab]||'Gestion'}</h1></div><div style="text-align:right">Document interne de gestion<br>${date}</div></header>${content}<footer style="margin-top:28px;font-size:10px;color:#64748b">État de gestion interne — ne remplace pas une facture comptable ou le justificatif original d’un fournisseur.</footer><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`;
+ const w=window.open('','_blank');if(!w){alert('Autorise les fenêtres pour imprimer cet état.');return}w.document.open();w.document.write(report);w.document.close();
+}
+
+function openSupplierForm(id=''){
+ const doc=managementData().supplierInvoices.find(x=>x.id===id)||{};
+ el('sfId').value=doc.id||'';
+ el('supplierModalTitle').textContent=doc.id?'Modifier facture fournisseur':'Nouvelle facture fournisseur';
+ el('sfSupplier').value=doc.supplier||'';el('sfNumber').value=doc.number||'';el('sfDate').value=doc.date||new Date().toISOString().slice(0,10);
+ el('sfDue').value=doc.due||'';el('sfHT').value=doc.ht??'';el('sfVAT').value=String(doc.vatRate??20);
+ el('sfPaid').value=doc.paymentStatus||'Non payée';el('sfMethod').value=doc.paymentMethod||'';el('sfPaidDate').value=doc.paymentDate||'';
+ el('sfProduct').innerHTML='<option value="">Aucun produit associé</option>'+products().map(x=>`<option value="${esc(x.ref)}">${esc(x.ref)} — ${esc(x.name)}</option>`).join('');
+ el('sfProduct').value=doc.productRef||'';el('sfQty').value=doc.qty||0;
+ el('sfExtraLines').innerHTML='';(doc.lines||[]).slice(1).forEach(l=>addSupplierProductLine(l.ref,l.qty));
+ el('sfAddProduct').style.display=doc.stockReceived?'none':'';
+ el('sfNotes').value=doc.notes||'';
+ if(doc.stockReceived){el('sfProduct').disabled=true;el('sfQty').disabled=true;el('sfExtraLines').querySelectorAll('input,select,button').forEach(e=>e.disabled=true)}else{el('sfProduct').disabled=false;el('sfQty').disabled=false}
+ updateSupplierTTC();toggleSupplierPay();el('supplierModal').style.display='flex';
+}
+function addSupplierProductLine(ref='',qty=0){
+ const container=el('sfExtraLines');if(!container)return;
+ const row=document.createElement('div');row.className='formgrid sf-extra';row.style.cssText='margin-top:8px;align-items:end;border-top:1px solid #e7eaf0;padding-top:8px';
+ row.innerHTML=`<div><label>Produit supplémentaire</label><select class="sfx-ref"><option value="">Choisir un produit</option>${products().map(p=>`<option value="${esc(p.ref)}">${esc(p.ref)} — ${esc(p.name)}</option>`).join('')}</select></div><div><label>Quantité</label><input class="sfx-qty" type="number" min="1" step="1" value="${Number(qty)||1}"><button type="button" class="mini-btn" onclick="this.closest('.sf-extra').remove()">Retirer</button></div>`;
+ container.appendChild(row);row.querySelector('select').value=ref;
+}
+function closeSupplierForm(){el('supplierModal').style.display='none'}
+function toggleSupplierPay(){const yes=el('sfPaid').value==='Payée';el('sfMethod').disabled=!yes;el('sfPaidDate').disabled=!yes;if(yes&&!el('sfPaidDate').value)el('sfPaidDate').value=new Date().toISOString().slice(0,10)}
+function updateSupplierTTC(){el('sfTTC').value=euro(Math.round(Number(el('sfHT').value||0)*(1+Number(el('sfVAT').value||0)/100)*100)/100)}
+function saveSupplierInvoice(){
+ const supplier=el('sfSupplier').value.trim(),number=el('sfNumber').value.trim();
+ const ht=Number(el('sfHT').value),qty=Number(el('sfQty').value||0),vatRate=Number(el('sfVAT').value);
+ if(!supplier||!number||!el('sfDate').value||el('sfHT').value===''||!Number.isFinite(ht)||ht<0){alert('Renseigne fournisseur, numéro, date et montant HT valide.');return}
+ if(!Number.isInteger(qty)||qty<0){alert('La quantité reçue doit être un entier positif.');return}
+ const lines=[];
+ if(el('sfProduct').value){if(qty<1){alert('Indique une quantité positive pour le premier produit.');return}lines.push({ref:el('sfProduct').value,qty});}
+ for(const row of el('sfExtraLines').querySelectorAll('.sf-extra')){
+  const ref=row.querySelector('.sfx-ref').value,quantity=Number(row.querySelector('.sfx-qty').value);
+  if(!ref){alert('Sélectionne un produit pour chaque ligne ajoutée.');return}
+  if(!Number.isInteger(quantity)||quantity<1){alert('La quantité reçue doit être un entier positif.');return}
+  lines.push({ref,qty:quantity});
+ }
+ if(new Set(lines.map(l=>l.ref)).size!==lines.length){alert('Un produit ne doit apparaître qu’une fois : regroupe ses quantités.');return}
+ const d=managementData(),id=el('sfId').value||('sf_'+Date.now());
+ if(d.supplierInvoices.some(x=>x.id!==id&&x.number===number&&x.supplier.toLowerCase()===supplier.toLowerCase())){alert('Cette facture existe déjà pour ce fournisseur.');return}
+ const old=d.supplierInvoices.find(x=>x.id===id)||{};
+ const obj={id,supplier,number,date:el('sfDate').value,due:el('sfDue').value,ht,vatRate,ttc:Math.round(ht*(1+vatRate/100)*100)/100,paymentStatus:el('sfPaid').value,paymentMethod:el('sfPaid').value==='Payée'?el('sfMethod').value:'',paymentDate:el('sfPaid').value==='Payée'?el('sfPaidDate').value:'',productRef:old.stockReceived?old.productRef:el('sfProduct').value,qty:old.stockReceived?old.qty:qty,lines:old.stockReceived?(old.lines||[{ref:old.productRef,qty:old.qty}].filter(x=>x.ref)):lines,notes:el('sfNotes').value.trim(),stockReceived:!!old.stockReceived};
+ const idx=d.supplierInvoices.findIndex(x=>x.id===id);if(idx>=0)d.supplierInvoices[idx]=obj;else d.supplierInvoices.unshift(obj);
+ saveManagement(d);closeSupplierForm();showManagementTab('suppliers');
+}
+function receiveSupplierStock(id){
+ const d=managementData(),i=d.supplierInvoices.find(x=>x.id===id);if(!i||i.stockReceived)return;
+ const lines=(i.lines?.length?i.lines:[{ref:i.productRef,qty:i.qty}]).filter(l=>l.ref&&Number(l.qty)>0);
+ if(!lines.length){alert('Aucune ligne de produit à réceptionner.');return}
+ const ps=products();
+ const unknown=lines.filter(l=>!ps.some(p=>String(p.ref)===String(l.ref)));
+ if(unknown.length){alert('Référence(s) introuvable(s) : '+unknown.map(l=>l.ref).join(', '));return}
+ if(!confirm(`Réceptionner ${lines.length} référence(s) pour la facture ${i.number} ? Le stock physique augmentera une seule fois.`))return;
+ const date=new Date().toISOString();
+ i.stockReceived=true;i.receivedAt=date;
+ for(const l of lines){const p=ps.find(x=>String(x.ref)===String(l.ref));p.stock=Number(p.stock||0)+Number(l.qty)}
+ saveManagement(d);saveProducts(ps);
+ for(const l of lines){const p=ps.find(x=>String(x.ref)===String(l.ref));addStockMovement({ref:p.ref,name:p.name,qty:Number(l.qty),kind:'Réception fournisseur',document:i.number,date})}
+}
+function toggleSupplierPayment(id){
+ const d=managementData(),i=d.supplierInvoices.find(x=>x.id===id);if(!i)return;
+ if(i.paymentStatus==='Payée'){
+   if(!confirm('Repasser cette facture en non payée ?'))return;
+   i.paymentStatus='Non payée';i.paymentMethod='';i.paymentDate='';
+ }else{
+   const method=prompt('Moyen de règlement de '+i.number+' :','Virement');if(method===null)return;
+   if(!method.trim()){alert('Indique le moyen de paiement.');return}
+   i.paymentStatus='Payée';i.paymentMethod=method.trim();i.paymentDate=new Date().toISOString().slice(0,10);
+ }
+ saveManagement(d);
+}
+
 function renderSettings(){
  const c=document.getElementById('setInvCounter');if(c)c.value=Number(localStorage.getItem(KEY_INV_COUNTER)||1);
  const e=document.getElementById('cloudUserEmail');if(e)e.value=cloudUser?.email||'—';
@@ -1680,6 +1875,29 @@ function saveSettings(){
 window.addEventListener('message',e=>{if(e.source===document.getElementById('creatorFrame')?.contentWindow&&e.data?.type==='t2c-saved'){scheduleCloudPush(150,'quotes');renderAll()}});
 syncCatalogBridge();renderAll();
 </script>
+
+
+<div id="supplierModal" class="modal" style="display:none;z-index:10005">
+ <div class="modalbox" style="max-width:760px;max-height:92vh;overflow:auto">
+  <div class="actions" style="justify-content:space-between;align-items:center"><h3 id="supplierModalTitle" style="margin:0">Facture fournisseur</h3><button class="btn ghost" onclick="closeSupplierForm()">Fermer</button></div>
+  <input type="hidden" id="sfId">
+  <div class="formgrid">
+   <div><label>Fournisseur *</label><input id="sfSupplier" placeholder="Nom du fournisseur"></div>
+   <div><label>Numéro de facture *</label><input id="sfNumber" placeholder="FAC-2026-001"></div>
+   <div><label>Date de facture</label><input type="date" id="sfDate"></div>
+   <div><label>Échéance</label><input type="date" id="sfDue"></div>
+   <div><label>Montant HT (€) *</label><input type="number" min="0" step="0.01" id="sfHT" oninput="updateSupplierTTC()"></div>
+   <div><label>TVA (%)</label><select id="sfVAT" onchange="updateSupplierTTC()"><option value="20">20 %</option><option value="10">10 %</option><option value="5.5">5,5 %</option><option value="0">0 %</option></select></div>
+   <div><label>Total TTC automatique</label><input id="sfTTC" readonly></div>
+   <div><label>Règlement</label><select id="sfPaid" onchange="toggleSupplierPay()"><option value="Non payée">Non payée</option><option value="Payée">Payée</option></select></div>
+   <div><label>Moyen de paiement</label><select id="sfMethod"><option value="">—</option><option>Virement</option><option>Carte</option><option>Chèque</option><option>Espèces</option><option>Prélèvement</option><option>Autre</option></select></div>
+   <div><label>Date de règlement</label><input type="date" id="sfPaidDate"></div>
+  </div>
+  <div class="notice" style="margin-top:12px"><b>Réception de stock</b><p class="small muted">Associe un produit et une quantité. Le stock n'augmente qu'en cliquant explicitement sur « Réceptionner » après enregistrement.</p><div class="formgrid"><div><label>Produit</label><select id="sfProduct"></select></div><div><label>Quantité reçue</label><input type="number" min="0" step="1" id="sfQty" value="0"></div></div><div id="sfExtraLines" style="margin-top:8px"></div><button class="btn ghost" type="button" id="sfAddProduct" onclick="addSupplierProductLine()" style="margin-top:10px">+ Ajouter un autre produit</button></div>
+  <div style="margin-top:12px"><label>Note / référence du document</label><textarea id="sfNotes" rows="2" placeholder="Informations utiles (aucun PDF joint)"></textarea></div>
+  <div class="actions" style="margin-top:15px;justify-content:flex-end"><button class="btn ghost" onclick="closeSupplierForm()">Annuler</button><button class="btn primary" onclick="saveSupplierInvoice()">Enregistrer la facture</button></div>
+ </div>
+</div>
 
 <div id="clientModal" class="modal" style="display:none;z-index:9999">
  <div class="modalbox">
@@ -1718,7 +1936,11 @@ syncCatalogBridge();renderAll();
    <div><label>Date</label><input id="miDate" type="date"></div>
   </div>
   <div class="actions" style="margin:16px 0 8px">
-   <button class="btn primary" onclick="addInvoiceCatalogLine()">+ Produit catalogue</button>
+   <label style="flex:1;min-width:180px">Rechercher un produit
+     <input id="miProductSearch" type="search" placeholder="Nom, référence..." oninput="refreshCounterProducts()" style="width:100%;margin-top:4px"></label>
+   <label style="flex:2;min-width:200px">Sélection catalogue
+     <select id="miProductSelect" style="width:100%;margin-top:4px"></select></label>
+   <button class="btn primary" onclick="addInvoiceSelectedProduct()">+ Ajouter au panier</button>
    <button class="btn ghost" onclick="addInvoiceFreeLine()">+ Ligne libre</button>
   </div>
   <div id="miLines"></div>
@@ -1735,7 +1957,8 @@ syncCatalogBridge();renderAll();
   <div id="miTotals" class="notice" style="margin-top:12px"></div>
   <div class="actions" style="margin-top:14px;justify-content:flex-end">
    <button class="btn ghost" type="button" onclick="closeManualInvoice()">Annuler</button>
-   <button class="btn primary" type="button" onclick="saveManualInvoice()">Enregistrer la facture</button>
+   <button class="btn ghost" type="button" onclick="saveManualInvoice()">Enregistrer brouillon</button>
+   <button class="btn primary" type="button" onclick="issueCounterInvoice()">Émettre la facture & sortir du stock</button>
   </div>
  </div>
 </div>
