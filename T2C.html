@@ -352,7 +352,32 @@ input,select,textarea{font-size:16px}
 </style>
 <style id="stockplus-css">
 .stockplus-top,.stockplus-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.stockplus-top{margin-bottom:16px}.stockplus-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}.stockplus-kpis>div{border:1px solid #e3e9f2;background:#f8fafc;border-radius:13px;padding:15px}.stockplus-kpis small{display:block;color:#64748b;margin-bottom:8px}.stockplus-kpis strong{font-size:21px;color:#173654}.stockplus-grid{display:grid;grid-template-columns:245px minmax(0,1fr);gap:14px}.stockplus-panel{background:#fff;border:1px solid #e2e8f0;border-radius:15px;padding:15px;min-width:0}.stockplus-heading{margin-bottom:13px}.stockplus-supplier{display:block;width:100%;border:1px solid transparent;background:transparent;color:#20364d;text-align:left;padding:11px 12px;border-radius:10px;margin-bottom:5px;cursor:pointer}.stockplus-supplier.active{background:#eff5fc;border-color:#bcd4ef}.stockplus-supplier strong{display:block;font-size:14px}.stockplus-supplier small{display:block;color:#687d95;margin-top:4px}.stockplus-toolbar{display:flex;gap:9px;margin-bottom:14px}.stockplus-toolbar input{flex:1;min-width:0}.stockplus-toolbar select{width:auto;max-width:170px}.stockplus-table td{vertical-align:middle}.stockplus-row-actions{display:flex;gap:5px;flex-wrap:wrap}.stockplus-empty{color:#64748b;text-align:center;padding:28px 12px}.stockplus-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stockplus-form>label{display:flex;flex-direction:column;gap:5px;font-weight:600;color:#34465c;font-size:13px}.stockplus-full{grid-column:1/-1}.stockplus-lines{width:100%;border-collapse:collapse;margin:8px 0}.stockplus-lines th,.stockplus-lines td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}.stockplus-lines input,.stockplus-lines select{width:100%}.stockplus-modal{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;background:#071a2caa;padding:14px}.stockplus-modal.show{display:flex}.stockplus-dialog{width:min(850px,100%);max-height:94vh;overflow:auto;border-radius:17px;background:white;padding:20px;box-shadow:0 15px 65px #0004}.stockplus-dialog h3{margin:0 0 15px}.stockplus-modal-header{display:flex;align-items:center;justify-content:space-between;gap:15px}.stockplus-notice{background:#eff6ff;border-radius:9px;color:#315578;font-size:12px;padding:10px 12px;margin:12px 0}.stockplus-inline{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.stockplus-inline button{min-height:38px}@media(max-width:800px){.stockplus-grid{grid-template-columns:1fr}.stockplus-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.stockplus-form{grid-template-columns:1fr}.stockplus-toolbar{flex-wrap:wrap}.stockplus-toolbar select{max-width:none;flex:1}}@media print{.stockplus-top button,.stockplus-row-actions{display:none!important}}
-</style></head>
+</style>
+<style id="t2c-login-input-visibility-fix">
+/* Safari / macOS: assurer la lisibilite des identifiants et du remplissage automatique */
+#loginScreen .loginbox input#loginEmail,
+#loginScreen .loginbox input#loginPassword {
+  color: #16253d !important;
+  -webkit-text-fill-color: #16253d !important;
+  background-color: #fff !important;
+  caret-color: #0b2f7c !important;
+  opacity: 1 !important;
+}
+#loginScreen .loginbox input#loginEmail::placeholder,
+#loginScreen .loginbox input#loginPassword::placeholder {
+  color: #68768a !important;
+  -webkit-text-fill-color: #68768a !important;
+  opacity: 1 !important;
+}
+#loginScreen .loginbox input:-webkit-autofill,
+#loginScreen .loginbox input:-webkit-autofill:hover,
+#loginScreen .loginbox input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #16253d !important;
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+  box-shadow: 0 0 0 1000px #fff inset !important;
+}
+</style>
+</head>
 <body>
 <div id="loginScreen" class="login">
  <div class="loginbox">
@@ -487,7 +512,7 @@ input,select,textarea{font-size:16px}
          <div class="table-wrap"><table class="tbl stockplus-table"><thead><tr><th>Référence / Désignation</th><th>Fournisseur</th><th>Physique</th><th>Réservé</th><th>Disponible</th><th class="cost-private-column">Coût moyen HT</th><th class="cost-private-column">Valeur HT</th><th>Actions</th></tr></thead><tbody id="stockplusProductRows"></tbody></table></div>
        </div></div>
      <div class="stockplus-panel" style="margin-top:14px"><div class="stockplus-heading"><b>Factures et réceptions fournisseurs</b><button class="mini-btn" onclick="stockplusOpenInvoice()">Nouvelle facture</button></div><div class="table-wrap"><table class="tbl"><thead><tr><th>Fournisseur</th><th>Facture</th><th>Date</th><th>Réception</th><th>Règlement</th><th>Actions</th></tr></thead><tbody id="stockplusInvoiceRows"></tbody></table></div></div>
-     <p class="small muted" style="margin-top:12px">Les montants d’achat et les valorisations sont réservés à la direction. L’inventaire initial est à contrôler avant toute utilisation comptable.</p>
+     <p class="small muted" style="margin-top:12px">Les montants d’achat et les valorisations sont réservés aux deux responsables T2C. L’inventaire initial est à contrôler avant toute utilisation comptable.</p>
    </div>
    <div id="mgmtSuppliers" class="mgmt-pane" style="display:none"><div class="table-wrap"><table class="tbl"><thead><tr><th>Fournisseur / N°</th><th>Date</th><th>Montant HT</th><th>TTC</th><th>Règlement</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="mgmtSupplierRows"></tbody></table></div></div>
    <div id="mgmtPayments" class="mgmt-pane" style="display:none"><div id="mgmtPaymentSummary"></div></div>
@@ -516,7 +541,7 @@ input,select,textarea{font-size:16px}
   <div><label>Référence</label><input id="pRef"></div>
   <div><label>Désignation</label><input id="pName"></div>
   <div><label>Type</label><select id="pType"><option value="machine">Machine</option><option value="accessory">Accessoire</option></select></div>
-  <div id="privatePurchaseBlock"><label>Prix d'achat HT (€) — réservé à la direction</label><input id="pBuyPrice" type="number" min="0" step="0.01"><div class="small muted" id="pMarginPreview"></div></div>
+  <div id="privatePurchaseBlock"><label>Prix d'achat HT (€) — gestion interne T2C</label><input id="pBuyPrice" type="number" min="0" step="0.01"><div class="small muted" id="pMarginPreview"></div></div>
   <div><label>Prix de vente HT (€)</label><input id="pPrice" type="number" min="0" step="0.01"><div class="small muted" style="margin-top:4px">TTC à 20 % : <b id="pPriceTtcPreview">0,00 €</b></div></div>
   <div><label>Quantité en stock</label><input id="pStock" type="number" step="1"></div>
   <div><label>Seuil d'alerte</label><input id="pMin" type="number" step="1"></div>
@@ -564,13 +589,16 @@ const SUPABASE_URL='https://vecazumyovgmspqovnrx.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_zlKDJBqPDWmskt8CgAXnlg_2RFLogwB';
 let sb=null, cloudUser=null, cloudApplying=false, cloudReady=false, cloudPushTimer=null, cloudPollTimer=null, lastCloudSignature='';
 
-const COST_OWNER_EMAIL='francoismarietramini7@gmail.com';
+// Identifiant canonique de la fiche de coûts commune aux deux dirigeants T2C.
+// La politique RLS Supabase contrôle qui peut la lire et la modifier.
+const COST_SHARED_ROW_ID='c054ac05-b0df-4d05-9ed7-da58f4ea0e9d';
+const COST_ALLOWED_USER_IDS=new Set(['c054ac05-b0df-4d05-9ed7-da58f4ea0e9d','708c8cc4-038c-4485-a982-aca0fc80ef73']);
 const COST_LOCAL_KEY='t2c_private_costs_v1';
 let privateCostState={products:{},quotes:{},purchaseInvoices:{}},privateCostsLoaded=false,privateCostsDirty=false,privateCostTimer=null;
 // No localStorage backup for sensitive purchase costs: protected by server RLS instead.
 try{localStorage.removeItem(COST_LOCAL_KEY);localStorage.removeItem('t2c_private_costs_pending_v1')}catch(e){}
 function privateCostsAvailable(){return isCostOwner()&&privateCostsLoaded}
-function isCostOwner(){return !!cloudUser&&String(cloudUser.email||'').toLowerCase()===COST_OWNER_EMAIL}
+function isCostOwner(){return !!cloudUser} // L'accès réel aux coûts est imposé par la policy RLS Supabase.
 function privateProductCost(ref){if(!isCostOwner())return null;const val=privateCostState.products[String(ref||'')];return val===undefined?null:Number(val)}
 function getQuoteCosts(number){return isCostOwner()?privateCostState.quotes[String(number||'')]||null:null}
 function privateCostStatus(message){const x=document.getElementById('privateCostStatus');if(x)x.textContent=message}
@@ -579,7 +607,7 @@ function setPrivateProductCost(ref,val){if(!isCostOwner())return;const key=Strin
 function saveQuoteCosts(number,costs){if(!isCostOwner())return;privateCostState.quotes[String(number||'')]=costs;queuePrivateCosts()}
 async function pullPrivateCosts(){
  if(!isCostOwner())return;
-  const {data,error}=await getSupabaseClient().from('t2c_private_costs').select('data').eq('owner_id',cloudUser.id).maybeSingle();
+  const {data,error}=await getSupabaseClient().from('t2c_private_costs').select('data').eq('owner_id',COST_SHARED_ROW_ID).maybeSingle();
  if(error)throw error;
  if(!privateCostsDirty&&data?.data)privateCostState={products:data.data.products||{},quotes:data.data.quotes||{},purchaseInvoices:data.data.purchaseInvoices||{}};
  privateCostsLoaded=true;
@@ -595,7 +623,7 @@ async function pullPrivateCosts(){
 async function pushPrivateCosts(){
  if(!isCostOwner()||!privateCostsLoaded||!privateCostsDirty)return;
  const snapshot=JSON.stringify(privateCostState);
- try{const {error}=await getSupabaseClient().from('t2c_private_costs').upsert({owner_id:cloudUser.id,data:JSON.parse(snapshot),updated_at:new Date().toISOString()},{onConflict:'owner_id'});if(error)throw error;
+ try{const {error}=await getSupabaseClient().from('t2c_private_costs').upsert({owner_id:COST_SHARED_ROW_ID,data:JSON.parse(snapshot),updated_at:new Date().toISOString()},{onConflict:'owner_id'});if(error)throw error;
   if(JSON.stringify(privateCostState)===snapshot)privateCostsDirty=false;
   privateCostStatus(privateCostsDirty?'Prix d’achat : modifications restantes':'Prix d’achat privés sauvegardés ☁️');
  }catch(e){console.error('Private costs',e);privateCostStatus('Prix d’achat non synchronisés — voir configuration Supabase')}
@@ -956,10 +984,14 @@ async function initSecureSession(){
    }
    client.auth.onAuthStateChange((event,session)=>{
      if(event==='SIGNED_OUT'){
-       cloudUser=null;cloudReady=false;
+       cloudUser=null;cloudReady=false;privateCostsLoaded=false;
+       privateCostState={products:{},quotes:{},purchaseInvoices:{}};
+       updatePrivateCostUI();
        document.getElementById('loginScreen').style.display='flex';
      }else if(session?.user){
        cloudUser=session.user;
+       // Les droits d'affichage sont rafraîchis après changement de session.
+       updatePrivateCostUI();
      }
      renderSettings();
    });
@@ -1980,7 +2012,7 @@ syncCatalogBridge();renderAll();
 
 <div class="stockplus-modal" id="spSupplierModal" role="dialog" aria-modal="true" aria-label="Fournisseur"><div class="stockplus-dialog"><div class="stockplus-modal-header"><h3>Fiche fournisseur</h3><button class="btn ghost" onclick="stockplusClose('spSupplierModal')">Fermer</button></div><input type="hidden" id="spSupplierId"><div class="stockplus-form"><label>Nom fournisseur *<input id="spSupplierName" placeholder="GREE"></label><label>Contact<input id="spSupplierContact" placeholder="Nom du contact"></label><label>Téléphone<input id="spSupplierPhone"></label><label>E-mail<input type="email" id="spSupplierEmail"></label><label class="stockplus-full">Adresse<textarea id="spSupplierAddress" rows="2"></textarea></label><label class="stockplus-full">Notes internes<textarea id="spSupplierNotes" rows="2"></textarea></label></div><div class="actions" style="margin-top:16px"><button class="btn primary" onclick="stockplusSaveSupplier()">Enregistrer le fournisseur</button><button class="btn ghost" onclick="stockplusDeleteSupplier()">Supprimer</button></div></div></div>
 <div class="stockplus-modal" id="spAssignModal" role="dialog" aria-modal="true" aria-label="Fournisseur du produit"><div class="stockplus-dialog" style="max-width:510px"><div class="stockplus-modal-header"><h3>Rattacher la référence</h3><button class="btn ghost" onclick="stockplusClose('spAssignModal')">Fermer</button></div><input type="hidden" id="spAssignRef"><p id="spAssignTitle"></p><label>Fournisseur unique<select id="spAssignSupplier" style="width:100%"></select></label><div class="actions" style="margin-top:17px"><button class="btn primary" onclick="stockplusSaveAssignment()">Enregistrer</button></div></div></div>
-<div class="stockplus-modal" id="spInvoiceModal" role="dialog" aria-modal="true" aria-label="Facture fournisseur"><div class="stockplus-dialog"><div class="stockplus-modal-header"><h3 id="spInvoiceTitle">Nouvelle facture fournisseur</h3><button class="btn ghost" onclick="stockplusClose('spInvoiceModal')">Fermer</button></div><input type="hidden" id="spInvoiceId"><div class="stockplus-form"><label>Fournisseur *<select id="spInvoiceSupplier" onchange="stockplusChangeInvoiceSupplier()"></select></label><label>Numéro facture *<input id="spInvoiceNumber" placeholder="FAC-2026-0001"></label><label>Date facture<input id="spInvoiceDate" type="date"></label><label>Échéance<input id="spInvoiceDue" type="date"></label><label>TVA (%)<select id="spInvoiceVAT" onchange="stockplusUpdateTotals()"><option value="20">20 %</option><option value="10">10 %</option><option value="5.5">5,5 %</option><option value="0">0 %</option></select></label><label>Statut du règlement<select id="spInvoicePayment"><option>Non payée</option><option>Payée</option></select></label><label>Moyen de paiement<select id="spInvoiceMethod"><option value="">—</option><option>Virement</option><option>Carte</option><option>Chèque</option><option>Espèces</option><option>Prélèvement</option><option>Autre</option></select></label><label>Date du paiement<input id="spInvoicePaymentDate" type="date"></label></div><div class="stockplus-notice">Saisis les lignes de la facture. Le stock n'augmente que lorsque tu confirmes la réception. Prix d'achat visibles uniquement par ton compte.</div><div class="table-wrap"><table class="stockplus-lines"><thead><tr><th>Produit</th><th>Qté</th><th class="cost-private-column">Achat HT / unité</th><th class="cost-private-column">Total HT</th><th></th></tr></thead><tbody id="spInvoiceLines"></tbody></table></div><div class="stockplus-inline"><button class="btn ghost" onclick="stockplusAddInvoiceLine()">+ Ligne produit</button><div id="spInvoiceTotals" style="margin-left:auto;text-align:right"></div></div><div class="actions" style="margin-top:17px"><button class="btn primary" onclick="stockplusSaveInvoice()">Enregistrer la facture</button><button class="btn ghost" onclick="stockplusDeleteInvoice(spVal('spInvoiceId'))">Supprimer brouillon</button></div></div></div>
+<div class="stockplus-modal" id="spInvoiceModal" role="dialog" aria-modal="true" aria-label="Facture fournisseur"><div class="stockplus-dialog"><div class="stockplus-modal-header"><h3 id="spInvoiceTitle">Nouvelle facture fournisseur</h3><button class="btn ghost" onclick="stockplusClose('spInvoiceModal')">Fermer</button></div><input type="hidden" id="spInvoiceId"><div class="stockplus-form"><label>Fournisseur *<select id="spInvoiceSupplier" onchange="stockplusChangeInvoiceSupplier()"></select></label><label>Numéro facture *<input id="spInvoiceNumber" placeholder="FAC-2026-0001"></label><label>Date facture<input id="spInvoiceDate" type="date"></label><label>Échéance<input id="spInvoiceDue" type="date"></label><label>TVA (%)<select id="spInvoiceVAT" onchange="stockplusUpdateTotals()"><option value="20">20 %</option><option value="10">10 %</option><option value="5.5">5,5 %</option><option value="0">0 %</option></select></label><label>Statut du règlement<select id="spInvoicePayment"><option>Non payée</option><option>Payée</option></select></label><label>Moyen de paiement<select id="spInvoiceMethod"><option value="">—</option><option>Virement</option><option>Carte</option><option>Chèque</option><option>Espèces</option><option>Prélèvement</option><option>Autre</option></select></label><label>Date du paiement<input id="spInvoicePaymentDate" type="date"></label></div><div class="stockplus-notice">Saisis les lignes de la facture. Le stock n'augmente que lorsque tu confirmes la réception. Prix d'achat visibles par les deux responsables T2C.</div><div class="table-wrap"><table class="stockplus-lines"><thead><tr><th>Produit</th><th>Qté</th><th class="cost-private-column">Achat HT / unité</th><th class="cost-private-column">Total HT</th><th></th></tr></thead><tbody id="spInvoiceLines"></tbody></table></div><div class="stockplus-inline"><button class="btn ghost" onclick="stockplusAddInvoiceLine()">+ Ligne produit</button><div id="spInvoiceTotals" style="margin-left:auto;text-align:right"></div></div><div class="actions" style="margin-top:17px"><button class="btn primary" onclick="stockplusSaveInvoice()">Enregistrer la facture</button><button class="btn ghost" onclick="stockplusDeleteInvoice(spVal('spInvoiceId'))">Supprimer brouillon</button></div></div></div>
 <div class="stockplus-modal" id="spAdjustModal" role="dialog" aria-modal="true"><div class="stockplus-dialog" style="max-width:510px"><div class="stockplus-modal-header"><h3>Ajustement de stock</h3><button class="btn ghost" onclick="stockplusClose('spAdjustModal')">Fermer</button></div><input id="spAdjustRef" type="hidden"><p id="spAdjustTitle" class="small"></p><div class="stockplus-form"><label>Type de mouvement<select id="spAdjustMode"><option value="plus">Entrée (+)</option><option value="minus">Sortie / correction (-)</option></select></label><label>Quantité<input id="spAdjustQty" type="number" value="1" min="1" step="1"></label><label class="stockplus-full">Motif *<input id="spAdjustReason" placeholder="Inventaire, casse, retour, correction…"></label></div><div class="actions" style="margin-top:17px"><button class="btn primary" onclick="stockplusSaveAdjust()">Valider et tracer le mouvement</button></div></div></div>
 <script id="stockplus-module">
 // T2C Stock & Fournisseurs — gestion complémentaire sans changement de lien.
@@ -2062,7 +2094,7 @@ function stockplusRender(){
  updatePrivateCostUI();
 }
 function stockplusOpenInvoice(id=''){
- if(!isCostOwner()||!privateCostsLoaded){alert('Seul le compte direction peut enregistrer les prix d’achat. Vérifie la connexion à la table privée dans Supabase.');return}
+ if(!isCostOwner()||!privateCostsLoaded){alert('Seuls les comptes T2C autorisés peuvent enregistrer les prix d’achat. Vérifie la connexion à la table privée dans Supabase.');return}
  const d=spStore();if(!d.suppliers.length){alert('Commence par créer un fournisseur.');return}
  const i=d.supplierInvoices.find(x=>x.id===id)||{};
  if(i.stockReceived){alert('Cette réception est verrouillée. Pour une correction, crée un mouvement documenté.');return}
@@ -2139,7 +2171,7 @@ receiveSupplierStock=function(id){
  const d=spStore(),inv=d.supplierInvoices.find(x=>x.id===id);
  if(!inv||inv.stockReceived)return;
  if(!inv.stockplusVersion){stockplusOriginalReceive(id);stockplusRender();return}
- if(!isCostOwner()||!privateCostsLoaded){alert('La direction doit confirmer les réceptions pour mettre à jour les coûts et le stock.');return}
+ if(!isCostOwner()||!privateCostsLoaded){alert('Un responsable T2C doit confirmer les réceptions pour mettre à jour les coûts et le stock.');return}
  const fin=spPrivateInvoice(id);if(!fin){alert('Détails d’achat privés indisponibles : ne pas réceptionner.');return}
  const ps=products(),lines=inv.lines||[];
  if(lines.some(l=>!ps.some(p=>p.ref===l.ref)||!Number.isInteger(Number(l.qty))||Number(l.qty)<=0||fin.costs?.[l.ref]===undefined)){alert('Réception impossible : références, quantités ou coûts incomplets.');return}
@@ -2182,7 +2214,7 @@ function stockplusDeleteSupplier(){
 }
 function stockplusDeleteInvoice(id){
  const d=spStore(),i=d.supplierInvoices.find(x=>x.id===id);if(!i||i.stockReceived)return;
- if(!isCostOwner()){alert('Seule la direction peut supprimer une facture fournisseur.');return}
+ if(!isCostOwner()){alert('Seuls les comptes T2C autorisés peuvent supprimer une facture fournisseur.');return}
  if(!confirm(`Supprimer la fiche de suivi ${i.number} ? Le PDF original du fournisseur n’est pas concerné.`))return;
  d.supplierInvoices=d.supplierInvoices.filter(x=>x.id!==id);
  if(privateCostState.purchaseInvoices)delete privateCostState.purchaseInvoices[id];queuePrivateCosts();saveManagement(d);stockplusRender();
